@@ -41,16 +41,7 @@
 #include <sys/stat.h>  /* For mkdir() */
 
 #define Print(...)
-
 #define BLOCKSIZE       512
-#define NORMAL          '0'
-#define HARDLINK        '1'
-#define SYMLINK         '2'
-#define CHAR            '3'
-#define BLOCK           '4'
-#define DIRECTORY       '5'
-#define FIFO            '6'
-#define CONTIGUOUS      '7'
 
 typedef int (*read_callback_t)(void*, char*, int);
 
@@ -175,7 +166,7 @@ void get_full_path(const char *dst_path, const char *file, char *out)
 
 /* Extract a tar archive. */
 static int
-untar_archive(void *a, read_callback_t read_cb, const char *dst_path)
+untar_archive(void *a, read_callback_t read_cb, const char *dst_path, tar_callback_t callback)
 {
 	char buff[BLOCKSIZE];
 	char path[256];
@@ -200,25 +191,25 @@ untar_archive(void *a, read_callback_t read_cb, const char *dst_path)
 		}
 		filesize = parseoct(buff + 124, 12);
 		switch (buff[156]) {
-		case HARDLINK:
+		case TAR_HARDLINK:
 			Print(" Ignoring hardlink %s\n", buff);
 			break;
-		case SYMLINK:
+		case TAR_SYMLINK:
 			Print(" Ignoring symlink %s\n", buff);
 			break;
-		case CHAR:
+		case TAR_CHAR:
 			Print(" Ignoring character device %s\n", buff);
 			break;
-		case BLOCK:
+		case TAR_BLOCK:
 			Print(" Ignoring block device %s\n", buff);
 			break;
-		case DIRECTORY:
+		case TAR_DIRECTORY:
 			Print(" Extracting dir %s\n", buff);
 			get_full_path(dst_path, buff, path);
 			create_dir(path, parseoct(buff + 100, 8));
 			filesize = 0;
 			break;
-		case FIFO:
+		case TAR_FIFO:
 			Print(" Ignoring FIFO %s\n", buff);
 			break;
 		default:
@@ -227,6 +218,10 @@ untar_archive(void *a, read_callback_t read_cb, const char *dst_path)
 			f = create_file(path, parseoct(buff + 100, 8));
 			break;
 		}
+
+		if (callback)
+			callback(buff, filesize, buff[156]);
+
 		while (filesize > 0) {
 			bytes_read = read_cb(a, buff, BLOCKSIZE);
 			if (bytes_read < BLOCKSIZE) {
@@ -252,38 +247,53 @@ untar_archive(void *a, read_callback_t read_cb, const char *dst_path)
 	}
 }
 
-int untar(const char* srcFile, const char* dstPath)
+int untarEx(const char* srcFile, const char* dstPath, tar_callback_t cb)
 {
 	FILE *a = fopen(srcFile, "rb");
 
 	if (!a)
 		return (-1);
 
-	int ret = untar_archive(a, &std_read, dstPath);
+	int ret = untar_archive(a, &std_read, dstPath, cb);
 	fclose(a);
 	return (ret);
 }
 
-int untar_gz(const char* srcFile, const char* dstPath)
+int untarEx_gz(const char* srcFile, const char* dstPath, tar_callback_t cb)
 {
 	gzFile gz = gzopen(srcFile, "rb");
 
 	if (!gz)
 		return (-1);
 
-	int ret = untar_archive(gz, &gz_read, dstPath);
+	int ret = untar_archive(gz, &gz_read, dstPath, cb);
 	gzclose_r(gz);
 	return (ret);
 }
 
-int untar_bz2(const char* srcFile, const char* dstPath)
+int untarEx_bz2(const char* srcFile, const char* dstPath, tar_callback_t cb)
 {
 	BZFILE *bz = BZ2_bzopen(srcFile, "rb");
 
 	if (!bz)
 		return (-1);
 
-	int ret = untar_archive(bz, &bz_read, dstPath);
+	int ret = untar_archive(bz, &bz_read, dstPath, cb);
 	BZ2_bzclose(bz);
 	return (ret);
+}
+
+int untar(const char* srcFile, const char* dstPath)
+{
+	return untarEx(srcFile, dstPath, NULL);
+}
+
+int untar_gz(const char* srcFile, const char* dstPath)
+{
+	return untarEx_gz(srcFile, dstPath, NULL);
+}
+
+int untar_bz2(const char* srcFile, const char* dstPath)
+{
+	return untarEx_bz2(srcFile, dstPath, NULL);
 }
