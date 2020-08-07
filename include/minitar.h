@@ -24,8 +24,8 @@ int untar(const char* srcFile, const char* dstPath);
 int untar_gz(const char* srcFile, const char* dstPath);
 int untar_bz2(const char* srcFile, const char* dstPath);
 
-int tar(const char* srcPath, const char* dstFile);
-int tar_gz(const char* srcPath, const char* dstFile);
-int tar_bz2(const char* srcPath, const char* dstFile);
+int tar(const char* dstFile, const char* srcPath);
+int tar_gz(const char* dstFile, const char* srcPath);
+int tar_bz2(const char* dstFile, const char* srcPath);
 
 #endif //UNTAR_EXTRACTOR_H

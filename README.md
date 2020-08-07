@@ -14,15 +14,15 @@ This library provides `.tar`, `.tar.gz` (GZip), and `.tar.bz2` (BZip2) archive h
 
  - tar(): creates a `.tar` uncompressed archive
  ```c
-int tar(const char* srcPath, const char* dstFile);
+int tar(const char* dstFile, const char* srcPath);
  ```
  - tar_gz(): creates a `.tar.gz` (GZip) compressed archive
  ```c
-int tar_gz(const char* srcPath, const char* dstFile);
+int tar_gz(const char* dstFile, const char* srcPath);
  ```
  - tar_bz2(): creates a `.tar.bz2` (BZip2) compressed archive
  ```c
-int tar_bz2(const char* srcPath, const char* dstFile);
+int tar_bz2(const char* dstFile, const char* srcPath);
  ```
 
 ### `tar` Extraction

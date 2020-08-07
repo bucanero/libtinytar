@@ -57,7 +57,7 @@ void Tar_initRecord(PosixTarHeader_t* header, char type)
     sprintf(header->magic, "ustar");
     sprintf(header->mtime, "%011lo", time(NULL));
     sprintf(header->mode, "%07o", (type == TAR_REGULAR ? 0644 : 0755));
-    sprintf(header->uname, "EZtar");
+    sprintf(header->uname, "minitar");
     sprintf(header->gname, "users");
     header->typeflag = type;
 }
@@ -221,7 +221,31 @@ int std_write(void* stdF, char* buf, int len)
 	return fwrite(buf, 1, len, stdF);
 }
 
-int tar(const char* srcPath, const char* dstFile)
+void tar_process(const char* path)
+{
+	char* indir;
+	char* start = strdup(path);
+	
+	if (path[strlen(path) - 1] == '/')
+	{
+		indir = strdup(path);
+		*strrchr(start, '/') = 0;
+	}
+	else
+	{
+		asprintf(&indir, "%s/", path);
+	}
+
+	/* add items */
+	walk_tar_directory(start, indir);
+
+	/* finalize the tar file */
+	Tar_finish();
+	free(start);
+	free(indir);
+}
+
+int tar(const char* dstFile, const char* srcPath)
 {
 	/* open file for writing */
 	FILE *a = fopen(dstFile, "wb");
@@ -231,25 +255,16 @@ int tar(const char* srcPath, const char* dstFile)
 
 	/* create the tar file */
 	Tar_init(a, &std_write);
-
-	char* tmp = strdup(srcPath);
-	*strrchr(tmp, '/') = 0;
-
-	/* add items */
-	walk_tar_directory(tmp, srcPath);
-
-	/* finalize the tar file */
-	Tar_finish();
+	tar_process(srcPath);
 
 	/* close the file */
 	fclose(a);
 
 	/* we're done */
-	free(tmp);
 	return (0);
 }
 
-int tar_gz(const char* srcPath, const char* dstFile)
+int tar_gz(const char* dstFile, const char* srcPath)
 {
 	gzFile gz = gzopen(dstFile, "wb");
 
@@ -257,19 +272,13 @@ int tar_gz(const char* srcPath, const char* dstFile)
 		return (-1);
 
 	Tar_init(gz, &gz_write);
+	tar_process(srcPath);
 
-	char* tmp = strdup(srcPath);
-	*strrchr(tmp, '/') = 0;
-
-	walk_tar_directory(tmp, srcPath);
-	Tar_finish();
 	gzclose_w(gz);
-
-	free(tmp);
 	return (0);
 }
 
-int tar_bz2(const char* srcPath, const char* dstFile)
+int tar_bz2(const char* dstFile, const char* srcPath)
 {
 	BZFILE *bz = BZ2_bzopen(dstFile, "wb");
 
@@ -277,14 +286,8 @@ int tar_bz2(const char* srcPath, const char* dstFile)
 		return (-1);
 
 	Tar_init(bz, &bz2_write);
+	tar_process(srcPath);
 
-	char* tmp = strdup(srcPath);
-	*strrchr(tmp, '/') = 0;
-
-	walk_tar_directory(tmp, srcPath);
-	Tar_finish();
 	BZ2_bzclose(bz);
-
-	free(tmp);
 	return (0);
 }
