@@ -2,25 +2,42 @@
 
 This library provides `.tar`, `.tar.gz` (GZip), and `.tar.bz2` (BZip2) archive handling, creation, and extraction to the PlayStation 3 using the [PSL1GHT SDK](https://github.com/ps3dev/PSL1GHT/).
 
-## Source Version
+### Source Version
 
  - libbzip2 [1.0.6](https://github.com/bucanero/psl1ght-libs/tree/master/bzip2)
  - based on [untar.c](https://github.com/libarchive/libarchive/blob/master/contrib/untar.c)
  - based on [tarball.cpp](https://github.com/lindenb/cclindenb/blob/master/src/core/lindenb/io/tarball.cpp)
 
-### Exports
+## Exports
 
- - untar(): extracts contents from a .tar uncompressed archive
+### `tar` Creation
+
+ - tar(): creates a `.tar` uncompressed archive
+ ```c
+int tar(const char* srcPath, const char* dstFile);
+ ```
+ - tar_gz(): creates a `.tar.gz` (GZip) compressed archive
+ ```c
+int tar_gz(const char* srcPath, const char* dstFile);
+ ```
+ - tar_bz2(): creates a `.tar.bz2` (BZip2) compressed archive
+ ```c
+int tar_bz2(const char* srcPath, const char* dstFile);
+ ```
+
+### `tar` Extraction
+
+ - untar(): extracts contents from a `.tar` uncompressed archive
  ```c
 int untar(const char* srcFile, const char* dstPath);
 int untarEx(const char* srcFile, const char* dstPath, tar_callback_t callback);
  ```
- - untar(): extracts contents from a .tar.gz (GZip) compressed archive
+ - untar_gz(): extracts contents from a `.tar.gz` (GZip) compressed archive
  ```c
 int untar_gz(const char* srcFile, const char* dstPath);
 int untarEx_gz(const char* srcFile, const char* dstPath, tar_callback_t callback);
  ```
- - untar_bz2(): extracts contents from a .tar.bz2 (BZip2) compressed archive
+ - untar_bz2(): extracts contents from a `.tar.bz2` (BZip2) compressed archive
  ```c
 int untar_bz2(const char* srcFile, const char* dstPath);
 int untarEx_bz2(const char* srcFile, const char* dstPath, tar_callback_t callback);
