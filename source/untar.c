@@ -143,7 +143,7 @@ int gz_read(void* gzF, char* buf, int len)
 	return gzread(gzF, buf, len);
 }
 
-int bz_read(void* bzF, char* buf, int len)
+int bz2_read(void* bzF, char* buf, int len)
 {
 	return BZ2_bzread(bzF, buf, len);
 }
@@ -278,7 +278,7 @@ int untarEx_bz2(const char* srcFile, const char* dstPath, tar_callback_t cb)
 	if (!bz)
 		return (-1);
 
-	int ret = untar_archive(bz, &bz_read, dstPath, cb);
+	int ret = untar_archive(bz, &bz2_read, dstPath, cb);
 	BZ2_bzclose(bz);
 	return (ret);
 }

@@ -1,6 +1,7 @@
 #ifndef UNTAR_EXTRACTOR_H
 #define UNTAR_EXTRACTOR_H
 
+#define TAR_REGULAR         '\0'
 #define TAR_NORMAL          '0'
 #define TAR_HARDLINK        '1'
 #define TAR_SYMLINK         '2'
@@ -22,5 +23,9 @@ int untarEx_bz2(const char* srcFile, const char* dstPath, tar_callback_t callbac
 int untar(const char* srcFile, const char* dstPath);
 int untar_gz(const char* srcFile, const char* dstPath);
 int untar_bz2(const char* srcFile, const char* dstPath);
+
+int tar(const char* srcPath, const char* dstFile);
+int tar_gz(const char* srcPath, const char* dstFile);
+int tar_bz2(const char* srcPath, const char* dstFile);
 
 #endif //UNTAR_EXTRACTOR_H
