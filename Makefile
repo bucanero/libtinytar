@@ -81,7 +81,7 @@ $(BUILD):
 install: $(BUILD)
 	@echo Copying...
 	@cp -frv include/bzlib.h $(PORTLIBS)/include
-	@cp -frv include/untar.h $(PORTLIBS)/include
+	@cp -frv include/minitar.h $(PORTLIBS)/include
 	@cp -frv *.a $(PORTLIBS)/lib
 	@echo Done!
 

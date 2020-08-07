@@ -15,7 +15,7 @@
 #include <dirent.h>
 #include <zlib.h>
 #include "bzlib.h"
-#include "untar.h"
+#include "minitar.h"
 
 
 #define Print(...)
