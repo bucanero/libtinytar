@@ -24,6 +24,10 @@ int untar(const char* srcFile, const char* dstPath);
 int untar_gz(const char* srcFile, const char* dstPath);
 int untar_bz2(const char* srcFile, const char* dstPath);
 
+int tarEx(const char* dstFile, const char* srcPath, tar_callback_t callback);
+int tarEx_gz(const char* dstFile, const char* srcPath, tar_callback_t callback);
+int tarEx_bz2(const char* dstFile, const char* srcPath, tar_callback_t callback);
+
 int tar(const char* dstFile, const char* srcPath);
 int tar_gz(const char* dstFile, const char* srcPath);
 int tar_bz2(const char* dstFile, const char* srcPath);

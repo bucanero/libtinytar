@@ -1,4 +1,4 @@
-# libuntar
+# minitar library
 
 This library provides `.tar`, `.tar.gz` (GZip), and `.tar.bz2` (BZip2) archive handling, creation, and extraction to the PlayStation 3 using the [PSL1GHT SDK](https://github.com/ps3dev/PSL1GHT/).
 
@@ -15,14 +15,17 @@ This library provides `.tar`, `.tar.gz` (GZip), and `.tar.bz2` (BZip2) archive h
  - tar(): creates a `.tar` uncompressed archive
  ```c
 int tar(const char* dstFile, const char* srcPath);
+int tarEx(const char* dstFile, const char* srcPath, tar_callback_t callback);
  ```
  - tar_gz(): creates a `.tar.gz` (GZip) compressed archive
  ```c
 int tar_gz(const char* dstFile, const char* srcPath);
+int tarEx_gz(const char* dstFile, const char* srcPath, tar_callback_t callback);
  ```
  - tar_bz2(): creates a `.tar.bz2` (BZip2) compressed archive
  ```c
 int tar_bz2(const char* dstFile, const char* srcPath);
+int tarEx_bz2(const char* dstFile, const char* srcPath, tar_callback_t callback);
  ```
 
 ### `tar` Extraction

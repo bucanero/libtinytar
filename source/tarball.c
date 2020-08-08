@@ -44,11 +44,13 @@ typedef struct
 
 void* archive = NULL;
 write_func_t writer = NULL;
+tar_callback_t user_callback = NULL;
 
-void Tar_init(void* arc, write_func_t wf)
+void Tar_init(void* arc, write_func_t wf, tar_callback_t cb)
 {
 	archive = arc;
 	writer = wf;
+	user_callback = cb;
 }
 
 void Tar_initRecord(PosixTarHeader_t* header, char type)
@@ -130,6 +132,9 @@ void Tar_putString(const char* filename, const char* content)
 
 int Tar_putDirectory(const char* dirInArchive)
 {
+	if (user_callback)
+		user_callback(dirInArchive, 0, TAR_DIRECTORY);
+
     Tar_putBuffer(dirInArchive, TAR_DIRECTORY, NULL, 0);
 	return 0;
 }
@@ -147,6 +152,9 @@ int Tar_putFile(const char* filename, const char* nameInArchive)
     fseek(in, 0L, SEEK_END);
     long int len= ftell(in);
     fseek(in, 0L, SEEK_SET);
+
+	if (user_callback)
+		user_callback(nameInArchive, len, TAR_REGULAR);
 
     PosixTarHeader_t header;
     Tar_initRecord(&header, TAR_REGULAR);
@@ -245,7 +253,7 @@ void tar_process(const char* path)
 	free(indir);
 }
 
-int tar(const char* dstFile, const char* srcPath)
+int tarEx(const char* dstFile, const char* srcPath, tar_callback_t callback)
 {
 	/* open file for writing */
 	FILE *a = fopen(dstFile, "wb");
@@ -254,7 +262,7 @@ int tar(const char* dstFile, const char* srcPath)
 		return (-1);
 
 	/* create the tar file */
-	Tar_init(a, &std_write);
+	Tar_init(a, &std_write, callback);
 	tar_process(srcPath);
 
 	/* close the file */
@@ -264,30 +272,45 @@ int tar(const char* dstFile, const char* srcPath)
 	return (0);
 }
 
-int tar_gz(const char* dstFile, const char* srcPath)
+int tarEx_gz(const char* dstFile, const char* srcPath, tar_callback_t callback)
 {
 	gzFile gz = gzopen(dstFile, "wb");
 
 	if (!gz)
 		return (-1);
 
-	Tar_init(gz, &gz_write);
+	Tar_init(gz, &gz_write, callback);
 	tar_process(srcPath);
 
 	gzclose_w(gz);
 	return (0);
 }
 
-int tar_bz2(const char* dstFile, const char* srcPath)
+int tarEx_bz2(const char* dstFile, const char* srcPath, tar_callback_t callback)
 {
 	BZFILE *bz = BZ2_bzopen(dstFile, "wb");
 
 	if (!bz)
 		return (-1);
 
-	Tar_init(bz, &bz2_write);
+	Tar_init(bz, &bz2_write, callback);
 	tar_process(srcPath);
 
 	BZ2_bzclose(bz);
 	return (0);
+}
+
+int tar(const char* dstFile, const char* srcPath)
+{
+	return tarEx(dstFile, srcPath, NULL);
+}
+
+int tar_gz(const char* dstFile, const char* srcPath)
+{
+	return tarEx_gz(dstFile, srcPath, NULL);
+}
+
+int tar_bz2(const char* dstFile, const char* srcPath)
+{
+	return tarEx_bz2(dstFile, srcPath, NULL);
 }
