@@ -1,6 +1,11 @@
-# minitar library
+# tinytar library
 
 This library provides `.tar`, `.tar.gz` (GZip), and `.tar.bz2` (BZip2) archive handling, creation, and extraction to the PlayStation 3 using the [PSL1GHT SDK](https://github.com/ps3dev/PSL1GHT/).
+
+## Features
+
+- Extract contents from `.tar`, `.tar.gz`, and `.tar.bz2` files
+- Create `.tar`, `.tar.gz`, and `.tar.bz2` archives
 
 ### Source Version
 
