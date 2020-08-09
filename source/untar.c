@@ -35,7 +35,7 @@
 
 #include <zlib.h>
 #include "bzlib.h"
-#include "minitar.h"
+#include "tinytar.h"
 
 /* This is for mkdir(); this may need to be changed for some platforms. */
 #include <sys/stat.h>  /* For mkdir() */

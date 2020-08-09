@@ -15,7 +15,7 @@
 #include <dirent.h>
 #include <zlib.h>
 #include "bzlib.h"
-#include "minitar.h"
+#include "tinytar.h"
 
 
 #define Print(...)
@@ -59,7 +59,7 @@ void Tar_initRecord(PosixTarHeader_t* header, char type)
     sprintf(header->magic, "ustar");
     sprintf(header->mtime, "%011lo", time(NULL));
     sprintf(header->mode, "%07o", (type == TAR_REGULAR ? 0644 : 0755));
-    sprintf(header->uname, "minitar");
+    sprintf(header->uname, "tinytar");
     sprintf(header->gname, "users");
     header->typeflag = type;
 }
