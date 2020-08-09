@@ -30,7 +30,7 @@ export DEPSDIR		:=	$(DEPS)/$(PLATFORM)
 endif
 #---------------------------------------------------------------------------------
 
-TARGET		:=	libuntar
+TARGET		:=	libtinytar
 BUILD		:=	build
 SOURCE		:=	source
 INCLUDE		:=	include
