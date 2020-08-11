@@ -32,8 +32,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <tar.h>
 #include <zlib.h>
+
 #include "bzlib.h"
 #include "tinytar.h"
 
@@ -191,31 +192,36 @@ untar_archive(void *a, read_callback_t read_cb, const char *dst_path, tar_callba
 		}
 		filesize = parseoct(buff + 124, 12);
 		switch (buff[156]) {
-		case TAR_HARDLINK:
+		case LNKTYPE:
 			Print(" Ignoring hardlink %s\n", buff);
 			break;
-		case TAR_SYMLINK:
+		case SYMTYPE:
 			Print(" Ignoring symlink %s\n", buff);
 			break;
-		case TAR_CHAR:
+		case CHRTYPE:
 			Print(" Ignoring character device %s\n", buff);
 			break;
-		case TAR_BLOCK:
+		case BLKTYPE:
 			Print(" Ignoring block device %s\n", buff);
 			break;
-		case TAR_DIRECTORY:
+		case DIRTYPE:
 			Print(" Extracting dir %s\n", buff);
 			get_full_path(dst_path, buff, path);
 			create_dir(path, parseoct(buff + 100, 8));
 			filesize = 0;
 			break;
-		case TAR_FIFO:
+		case FIFOTYPE:
 			Print(" Ignoring FIFO %s\n", buff);
 			break;
-		default:
+		case REGTYPE:
+		case AREGTYPE:
+		case CONTTYPE:
 			Print(" Extracting file %s\n", buff);
 			get_full_path(dst_path, buff, path);
 			f = create_file(path, parseoct(buff + 100, 8));
+			break;
+		default:
+			Print(" Ignoring unknown type %s\n", buff);
 			break;
 		}
 

@@ -1,16 +1,6 @@
 #ifndef UNTAR_EXTRACTOR_H
 #define UNTAR_EXTRACTOR_H
 
-#define TAR_REGULAR         '\0'
-#define TAR_NORMAL          '0'
-#define TAR_HARDLINK        '1'
-#define TAR_SYMLINK         '2'
-#define TAR_CHAR            '3'
-#define TAR_BLOCK           '4'
-#define TAR_DIRECTORY       '5'
-#define TAR_FIFO            '6'
-#define TAR_CONTIGUOUS      '7'
-
 /*
 	void callback(const char* fileName, unsigned long fileSize, char fileType);
 */

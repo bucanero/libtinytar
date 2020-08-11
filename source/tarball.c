@@ -14,6 +14,8 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <zlib.h>
+#include <tar.h>
+
 #include "bzlib.h"
 #include "tinytar.h"
 
@@ -56,11 +58,12 @@ void Tar_init(void* arc, write_func_t wf, tar_callback_t cb)
 void Tar_initRecord(PosixTarHeader_t* header, char type)
 {
     memset(header, 0, sizeof(PosixTarHeader_t));
-    sprintf(header->magic, "ustar");
+    sprintf(header->magic, TMAGIC);
     sprintf(header->mtime, "%011lo", time(NULL));
-    sprintf(header->mode, "%07o", (type == TAR_REGULAR ? 0644 : 0755));
+    sprintf(header->mode, "%07o", (type == REGTYPE ? 0644 : 0755));
     sprintf(header->uname, "tinytar");
     sprintf(header->gname, "users");
+    memcpy(header->version, TVERSION, TVERSLEN);
     header->typeflag = type;
 }
 
@@ -127,15 +130,15 @@ void Tar_putBuffer(const char* filename, char type, const char* content, size_t 
 
 void Tar_putString(const char* filename, const char* content)
 {
-    Tar_putBuffer(filename, TAR_REGULAR, content, strlen(content));
+    Tar_putBuffer(filename, REGTYPE, content, strlen(content));
 }
 
 int Tar_putDirectory(const char* dirInArchive)
 {
 	if (user_callback)
-		user_callback(dirInArchive, 0, TAR_DIRECTORY);
+		user_callback(dirInArchive, 0, DIRTYPE);
 
-    Tar_putBuffer(dirInArchive, TAR_DIRECTORY, NULL, 0);
+    Tar_putBuffer(dirInArchive, DIRTYPE, NULL, 0);
 	return 0;
 }
 
@@ -154,10 +157,10 @@ int Tar_putFile(const char* filename, const char* nameInArchive)
     fseek(in, 0L, SEEK_SET);
 
 	if (user_callback)
-		user_callback(nameInArchive, len, TAR_REGULAR);
+		user_callback(nameInArchive, len, REGTYPE);
 
     PosixTarHeader_t header;
-    Tar_initRecord(&header, TAR_REGULAR);
+    Tar_initRecord(&header, REGTYPE);
     Tar_filename(&header, nameInArchive);
     Tar_size(&header, len);
     Tar_checksum(&header);
@@ -206,7 +209,7 @@ void walk_tar_directory(const char* startdir, const char* inputdir)
   			} else {
     			Print("Adding file '%s'", fullname+len);
     			if (Tar_putFile(fullname, fullname+len) < 0) {
-      				Print("Failed to add file to zip: %s", fullname);
+      				Print("Failed to add file to tar: %s", fullname);
     			}
   			}
 		}
