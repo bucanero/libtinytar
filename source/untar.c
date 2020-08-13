@@ -171,6 +171,7 @@ untar_archive(void *archive, read_callback_t reader, const char *dst_path, tar_c
 {
 	tar_block_t buff;
 	char path[256];
+	char lnk[256];
 	FILE *f = NULL;
 	size_t bytes_read;
 	int filesize;
@@ -193,35 +194,38 @@ untar_archive(void *archive, read_callback_t reader, const char *dst_path, tar_c
 		filesize = parseoct(buff.size, 12);
 		switch (buff.typeflag) {
 		case LNKTYPE:
-			Print(" Ignoring hardlink %s\n", buff);
+			Print(" Extracting hardlink %s\n", buff.name);
+			get_full_path(dst_path, buff.name, path);
+			get_full_path(dst_path, buff.linkname, lnk);
+			link(lnk, path);
 			break;
 		case SYMTYPE:
-			Print(" Ignoring symlink %s\n", buff);
+			Print(" Ignoring symlink %s\n", buff.name);
 			break;
 		case CHRTYPE:
-			Print(" Ignoring character device %s\n", buff);
+			Print(" Ignoring character device %s\n", buff.name);
 			break;
 		case BLKTYPE:
-			Print(" Ignoring block device %s\n", buff);
+			Print(" Ignoring block device %s\n", buff.name);
 			break;
 		case DIRTYPE:
-			Print(" Extracting dir %s\n", buff);
+			Print(" Extracting dir %s\n", buff.name);
 			get_full_path(dst_path, buff.name, path);
 			create_dir(path, parseoct(buff.mode, 8));
 			filesize = 0;
 			break;
 		case FIFOTYPE:
-			Print(" Ignoring FIFO %s\n", buff);
+			Print(" Ignoring FIFO %s\n", buff.name);
 			break;
 		case REGTYPE:
 		case AREGTYPE:
 		case CONTTYPE:
-			Print(" Extracting file %s\n", buff);
+			Print(" Extracting file %s\n", buff.name);
 			get_full_path(dst_path, buff.name, path);
 			f = create_file(path, parseoct(buff.mode, 8));
 			break;
 		default:
-			Print(" Ignoring unknown type %s\n", buff);
+			Print(" Ignoring unsupported type %s (%X)\n", buff.name, buff.typeflag);
 			break;
 		}
 
