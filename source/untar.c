@@ -194,11 +194,13 @@ untar_archive(void *archive, read_callback_t reader, const char *dst_path, tar_c
 		filesize = parseoct(buff.size, 12);
 		switch (buff.typeflag) {
 		case LNKTYPE:
+#ifdef __PPU__
 			Print(" Extracting hardlink %s\n", buff.name);
 			get_full_path(dst_path, buff.name, path);
 			get_full_path(dst_path, buff.linkname, lnk);
 			link(lnk, path);
 			break;
+#endif
 		case SYMTYPE:
 			Print(" Ignoring symlink %s\n", buff.name);
 			break;
